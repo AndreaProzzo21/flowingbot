@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A k3s Cluster on AWS, Managed Entirely from Git - FlowingBot Blog</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="icon" type="image/png" sizes="192x192" href="../logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=7">
+<style>
+    .code-block {
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+        padding: 16px;
+        border-radius: 8px;
+        overflow-x: auto;
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 0.9em;
+        margin-bottom: 24px;
+        color: #212529;
+    }
+    .article-image {
+        margin: 40px 0;
+        border-radius: 8px;
+        border: 1px solid var(--line);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    }
+</style>
+</head>
+<body>
+
+<nav id="site-nav">
+    <a href="../index.html" class="brand">
+        <svg class="brand-mark" viewBox="0 0 30 30" fill="none">
+            <rect x="1" y="1" width="28" height="28" rx="7" stroke="#1E4FE0" stroke-width="1.4"/>
+            <path d="M7 20C10 20 10 10 15 10C20 10 20 20 23 20" stroke="#1E4FE0" stroke-width="1.6" stroke-linecap="round"/>
+            <circle cx="23" cy="20" r="1.6" fill="#1E4FE0"/>
+        </svg>
+        <span class="brand-word">Flowing<span>Bot</span></span>
+    </a>
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span>
+    </button>
+    <div class="nav-links" id="navLinks">
+        <a href="../about.html">About</a>
+        <a href="../index.html#lab">Lab</a>
+        <a href="../blog.html" style="color: var(--blue);">Blog</a>
+        <a href="mailto:info@flowingbot.com" class="nav-cta">GET IN TOUCH</a>
+    </div>
+</nav>
+
+<header class="article-header">
+    <div class="article-header-container">
+        <div class="article-meta">
+            <span>November 19, 2026</span>
+            <span>•</span>
+            <span>By Andrea Prozzo</span>
+        </div>
+        <h1>A k3s Cluster on AWS, Managed Entirely from Git</h1>
+        <div class="stack-pills" style="margin-top: 24px;">
+            <span>k3s</span>
+            <span>FluxCD</span>
+            <span>Terraform</span>
+            <span>SOPS</span>
+            <span>Cloudflare Tunnel</span>
+        </div>
+    </div>
+</header>
+
+<main class="article-body">
+    <p>I wanted to see how far I could push GitOps on a small cluster: servers created by Terraform, everything inside the cluster managed by Flux, and no manual <code>kubectl apply</code> after the first bootstrap. This is how it turned out: a k3s cluster on AWS with one master and one worker, where Git is the only way in.</p>
+
+    <h2>Layer 1: The Servers (Terraform)</h2>
+    <p>The cluster itself is plain Terraform. A <code>t3.small</code> master and <code>t3.micro</code> workers on Ubuntu 24.04, each configured by a <code>user_data</code> script that adds a 2 GB swapfile (these machines don't have much RAM to spare) and installs k3s.</p>
+
+    <p>I tried to leave nothing to copy by hand. Terraform generates the k3s join token and the SSH key, and workers join the master on their own at boot. Adding a node is a one-number change:</p>
+
+<pre class="code-block"><code>resource "aws_instance" "k3s_worker" {
+  count      = var.worker_count
+  depends_on = [aws_instance.k3s_master]
+  # ... joins the master with the generated token
+}</code></pre>
+
+    <p>The security group is deliberately small: nodes can talk freely to each other, while SSH and the Kubernetes API are reachable only from my own IP. Only this part is AWS-specific, so moving the setup to another provider would mean rewriting the Terraform and nothing else.</p>
+
+    <h2>Layer 2: Flux Takes Over</h2>
+    <p>Once the cluster is up, a single command connects it to the repository and installs the Flux controllers:</p>
+
+<pre class="code-block"><code>flux bootstrap github \
+  --owner=&lt;user&gt; \
+  --repository=&lt;repo&gt; \
+  --branch=main \
+  --path=clusters/k3s-flux-lab \
+  --personal</code></pre>
+
+    <p>From that moment Git is the source of truth. The repo has three main areas: <code>clusters/</code> is the entrypoint Flux watches, <code>infrastructure/</code> holds everything that supports the cluster, and <code>apps/</code> holds the workloads.</p>
+
+    <p>Infrastructure covers namespaces and base config, Reloader, Flux notifications, monitoring, logging (Vector and VictoriaLogs, which I wrote about in <a href="logging-vector-victoria.html" style="color: var(--blue); font-weight: 600;">another note</a>), the Cloudflare tunnel and RabbitMQ. RabbitMQ runs as a StatefulSet and its config and definitions live in Git too, so even the broker setup is reproducible. Apps are small things like a dashboard, a few IT tools, an EdgeHub agent and a node monitor. Every folder follows the same pattern: a <code>kustomization.yaml</code> plus plain manifests or a HelmRelease.</p>
+
+    <h2>Secrets: SOPS and age</h2>
+    <p>Putting passwords in Git sounds wrong until you encrypt them. I used SOPS with age: the private key is injected into the cluster once as a Kubernetes Secret, a <code>.sops.yaml</code> file maps the public key to every <code>*.sops.yaml</code> file, and Flux decrypts them on the fly:</p>
+
+<pre class="code-block"><code>spec:
+  decryption:
+    provider: sops
+    secretRef:
+      name: sops-age</code></pre>
+
+    <p>The workflow is: write the Secret in plain text, run <code>sops --encrypt --in-place</code>, push. The risky step is forgetting the encryption, so a Git hook scans staged <code>*.sops.yaml</code> files and blocks the commit if the <code>sops:</code> metadata key is missing. It has already saved me from myself.</p>
+
+    <h2>Networking: A Tunnel Instead of Open Ports</h2>
+    <p>At first the AWS security group exposed ports 80 and 443 like any web server. Then I switched to Cloudflare Tunnels and closed them. The <code>cloudflared</code> daemon runs inside the cluster as a normal deployment, with its credentials encrypted by SOPS, and opens an outbound-only connection to Cloudflare. Nothing needs to reach the instances from the internet for HTTP traffic anymore.</p>
+
+    <p>The path of a request looks like this: Cloudflare terminates HTTPS, sends the request through the tunnel to <code>cloudflared</code>, which hands it to Traefik, which routes it to the right Service. All Services are now <code>ClusterIP</code>, so nothing is exposed on the host network. A new hostname is one command:</p>
+
+<pre class="code-block"><code>cloudflared tunnel route dns &lt;tunnel-name&gt; app.flowingbot.com</code></pre>
+
+    <p>There's a bonus: with traffic going through Cloudflare, access rules live at the edge, and I can change who reaches what without touching the cluster. The one exception is non-HTTP traffic like RabbitMQ, which still uses NodePorts restricted to a short list of allowed IPs.</p>
+
+    <h2>The Small Thing That Makes It Hands-Off</h2>
+    <p>Here's a classic: you update a ConfigMap or a Secret and the Pods keep running with the old values. With GitOps you can't just restart them by hand, so I deployed Stakater Reloader through a HelmRelease. One annotation on a Deployment is enough:</p>
+
+<pre class="code-block"><code>metadata:
+  annotations:
+    reloader.stakater.com/auto: "true"</code></pre>
+
+    <p>When Flux applies a change to the linked ConfigMap or Secret, Reloader triggers a rolling update. Commit, push, done.</p>
+
+    <h2>The Takeaway</h2>
+    <p>I think this is a really cool way to run a cluster. It's fairly cheap, because k3s is happy on small machines and the whole thing runs on a <code>t3.small</code> and a <code>t3.micro</code>. It's managed, because Flux keeps the cluster aligned with what's in the repo. And it's versioned: every change is a commit I can review, and revert if something goes wrong.</p>
+
+    <p>It also changed how I treat the cluster. Rebuilding it means <code>terraform apply</code>, a Flux bootstrap and re-injecting the age key (which of course never lives in the repo), so I can try things, break them and get back to a known state without stress. For a homelab, a small team or an edge test setup, it's a setup I'd happily recommend.</p>
+    <p><em>How do you handle secrets in your GitOps setup: SOPS, Sealed Secrets, External Secrets? Let's discuss it in the comments below!</em></p>
+</main>
+
+<!-- GISCUS COMMENTS SECTION -->
+<div class="giscus-wrapper">
+    <h3 style="margin-bottom: 24px; font-family: var(--font-display);">Discussion & Reactions</h3>
+    
+    <script src="https://giscus.app/client.js"
+            data-repo="AndreaProzzo21/flowing-bot"
+            data-repo-id="R_kgDOTty88A"
+            data-category="General"
+            data-category-id="DIC_kwDOTty88M4DCqQ3"
+            data-mapping="title"
+            data-strict="0"
+            data-reactions-enabled="1"
+            data-emit-metadata="0"
+            data-input-position="bottom"
+            data-theme="noborder_light"
+            data-lang="en"
+            crossorigin="anonymous"
+            async>
+    </script>
+</div>
+
+<footer>
+    <div class="container footer-row">
+        <span class="footer-brand">© 2026 FLOWINGBOT LAB</span>
+        <div class="footer-right">
+            <a href="../privacy.html" class="footer-link">Privacy &amp; Cookies</a>
+            <div class="footer-social">
+                <a href="https://github.com/AndreaProzzo21" target="_blank" rel="noopener" aria-label="GitHub">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+                </a>
+                <a href="https://www.linkedin.com/in/andrea-prozzo-02884826b/" target="_blank" rel="noopener" aria-label="LinkedIn">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+                </a>
+                <a href="mailto:info@flowingbot.com" aria-label="Email">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                </a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script src="../app.js"></script>
+</body>
+</html>
