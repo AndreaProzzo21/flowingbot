@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>About — FlowingBot</title>
-<meta name="description" content="FlowingBot is an edge-to-cloud automation lab based in Emilia Romagna, building the systems between physical devices and the cloud.">
+<meta name="description" content="I'm Andrea Prozzo, a young engineer into automation, open source and technology. FlowingBot is my lab: projects, experiments and a home lab.">
 <link rel="icon" type="image/png" sizes="192x192" href="/logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -25,9 +25,8 @@
         <span></span><span></span>
     </button>
     <div class="nav-links" id="navLinks">
-        <a href="/index.html">Home</a>
-        <a href="/index.html#solutions">Solutions</a>
-        <a href="/index.html#lab">Lab Systems</a>
+        <a href="/about.html">About</a>
+        <a href="/index.html#lab">Lab</a>
         <a href="/blog.html" style="color: var(--blue);">Blog</a>
         <a href="mailto:info@flowingbot.com" class="nav-cta">GET IN TOUCH</a>
     </div>
@@ -35,10 +34,9 @@
 
 <header class="hero">
     <div class="container hero-container">
-        <span class="eyebrow">About the lab</span>
-        <h1>Systems that listen <br>before they <span>act.</span></h1>
-        <p class="lede">Based in Emilia Romagna, FlowingBot is a small automation lab working at the seam between physical devices and the cloud. We don't build dashboards for their own sake — we build the plumbing that makes the dashboard trustworthy.</p>
-    </div>
+        <span class="eyebrow">About me</span>
+        <h1>Hi, I'm <span>Andrea</span>. I like to automate things.</h1>
+        <p class="lede">I'm a young engineer into automation, open source and technology in general. FlowingBot is my lab: the place where I build my projects, test new tools and run my home lab. </p>
 </header>
 
 <section>
@@ -46,28 +44,28 @@
         <div class="section-head">
             <span class="eyebrow">How a signal moves through the lab</span>
             <h2>Sense. Transmit. Orchestrate. Observe.</h2>
-            <p>Every system we ship follows the same four-stage path — it's the actual pipeline behind EdgeHub.</p>
+            <p>Most of my projects follow the same four-stage path. It's the actual pipeline behind EdgeHub.</p>
         </div>
         <div class="approach">
             <div class="approach-step">
                 <span class="approach-code">01 / SENSE</span>
                 <h3>Edge instrumentation</h3>
-                <p>Go and C++ agents read CPU, thermal, and vibration data directly off Raspberry Pi, ESP32, and bare-metal hosts — no polling a dashboard that's already stale.</p>
+                <p>Go and C++ agents read CPU, thermal, and vibration data directly off Raspberry Pi, ESP32, and bare-metal hosts, instead of polling a dashboard that's already stale.</p>
             </div>
             <div class="approach-step">
                 <span class="approach-code">02 / TRANSMIT</span>
                 <h3>Reliable delivery</h3>
-                <p>MQTT and stateless JWT pipelines move telemetry off-device, with over-the-air token rotation so a fleet never quietly drops offline.</p>
+                <p>MQTT and stateless JWT pipelines move telemetry off the device. Tokens rotate over the air, so a fleet doesn't quietly drop offline.</p>
             </div>
             <div class="approach-step">
                 <span class="approach-code">03 / ORCHESTRATE</span>
                 <h3>Cloud-native control</h3>
-                <p>Kubernetes, GitOps, and zero-trust proxies turn raw ingestion into a system that scales — and that someone other than us can operate safely.</p>
+                <p>Kubernetes, GitOps, and zero-trust proxies turn raw ingestion into a system that scales, and that someone other than me can operate safely.</p>
             </div>
             <div class="approach-step">
                 <span class="approach-code">04 / OBSERVE</span>
                 <h3>Decisions, not charts</h3>
-                <p>Prometheus, Loki, and Grafana close the loop — the point isn't a pretty graph, it's catching the failure before it happens.</p>
+                <p>Prometheus, Loki, and Grafana close the loop. The point isn't a pretty graph, it's catching the failure before it happens.</p>
             </div>
         </div>
     </div>
@@ -76,21 +74,21 @@
 <section class="lab-alt">
     <div class="container">
         <div class="section-head">
-            <span class="eyebrow">Vision</span>
-            <h2>What we believe.</h2>
+            <span class="eyebrow">How I work</span>
+            <h2>What I believe.</h2>
         </div>
         <div class="values-grid">
             <div class="value-card">
                 <h3>Workflows & Agents</h3>
-                <p>True automation requires the right balance. We build robust, deterministic workflows to guarantee reliable core operations, and seamlessly integrate AI agents to handle dynamic contexts and complex edge cases.</p>
+                <p>Core operations should be boring, deterministic workflows that just work. AI agents come in where the context is fuzzy and the edge cases pile up.</p>
             </div>
             <div class="value-card">
                 <h3>IIoT is not optional</h3>
-                <p>Hardware and software must speak the same language seamlessly. We treat sensors and physical machinery as the core foundation of our architectures, ensuring data integrity from the ground up.</p>
+                <p>Sensors and physical machines are the foundation of everything I build, not an afterthought. If the data is wrong at the source, nothing downstream can fix it.</p>
             </div>
             <div class="value-card">
                 <h3>Built to be operated</h3>
-                <p>Long-term reliability is our priority. We engineer transparent, well-documented ecosystems designed to be easily managed, scaled, and sustained by your entire operations team.</p>
+                <p>I love open source because it pushes good habits: clear docs, simple setups, things someone else can actually run. Most of what I build is meant to be operated by someone who isn't me.</p>
             </div>
         </div>
     </div>
@@ -100,7 +98,8 @@
     <div class="container">
         <div class="section-head">
             <span class="eyebrow">Stack</span>
-            <h2>What we build with.</h2>
+            <h2>What I build with.</h2>
+            <p>Mostly open source tools, running on a mix of cloud VMs, Raspberry Pis and my home lab.</p>
         </div>
 
         <div class="stack-domain">
@@ -130,8 +129,8 @@
     <div class="container">
         <div class="cta-band">
             <div>
-                <h2>Curious how the lab works day to day?</h2>
-                <p>Open systems, open questions — happy to talk shop.</p>
+                <h2>Curious about something here?</h2>
+                <p>Open systems, open questions. Happy to talk shop.</p>
             </div>
             <a href="mailto:info@flowingbot.com" class="btn btn-primary">info@flowingbot.com</a>
         </div>
