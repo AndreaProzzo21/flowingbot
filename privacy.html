@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Privacy & Cookies - FlowingBot Lab</title>
+<title>Privacy & Cookies - FlowingBot</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="icon" type="image/png" sizes="192x192" href="/logo.png">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -79,8 +79,7 @@
     </button>
     <div class="nav-links" id="navLinks">
         <a href="/about.html">About</a>
-        <a href="/index.html#solutions">Solutions</a>
-        <a href="/index.html#lab">Lab Systems</a>
+        <a href="/index.html#lab">Lab</a>
         <a href="/blog.html" style="color: var(--blue);">Blog</a>
         <a href="mailto:info@flowingbot.com" class="nav-cta">GET IN TOUCH</a>
     </div>
@@ -88,37 +87,42 @@
 
 <header class="privacy-header">
     <h1>Privacy & Cookies Policy</h1>
-    <p>Last updated: August 2026</p>
+    <p>Last updated: November 2026</p>
 </header>
 
 <main class="privacy-content">
-    <p>FlowingBot Lab is built as a static website. We do not use Google Analytics, Meta Pixels, or any marketing tracking scripts. We do not profile visitors or sell data.</p>
-    <p>However, to ensure security and provide core functionalities, minimal technical data processing occurs as outlined below.</p>
+    <p>FlowingBot is a static website hosted on Cloudflare Pages. There's no Google Analytics, no Meta Pixel and no marketing tracking scripts. I don't profile visitors and I don't sell data.</p>
+    <p>Still, a small amount of technical data is processed to keep the site secure and working. Here's what and why.</p>
 
-    <h2>1. Server Logs (Nginx)</h2>
-    <p>Like most web servers, our infrastructure automatically records basic request information. This data is strictly used for security monitoring, troubleshooting, and preventing abuse.</p>
+    <h2>1. Hosting and network (Cloudflare)</h2>
+    <p>This site is served through Cloudflare Pages and the Cloudflare network. Like any hosting and CDN provider, Cloudflare processes basic request information to deliver pages, protect the site from abuse and attacks, and keep the service running.</p>
     <ul>
-        <li><strong>Data collected:</strong> IP address, browser type (User-Agent), requested pages, and timestamps.</li>
-        <li><strong>Retention:</strong> Logs are rotated and permanently deleted after a standard retention period (usually 14 days), unless required for investigating a specific security incident.</li>
+        <li><strong>Data processed:</strong> IP address, browser type (User-Agent), requested pages, timestamps and other standard request metadata.</li>
+        <li><strong>My own logs:</strong> I don't run my own server for this site and I don't keep my own logs of visits. This data is handled by Cloudflare under its own policies, including how long it is kept. See the <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener">Cloudflare Privacy Policy</a>.</li>
+        <li><strong>Where:</strong> Cloudflare operates servers around the world, so your request may be handled outside your country.</li>
+        <li><strong>Cookies:</strong> Cloudflare may set technical security cookies, for example to tell real visitors from bots (such as <code>__cf_bm</code>) or to remember that you passed a security check (such as <code>cf_clearance</code>). They exist for security and are not used for advertising. More details in the <a href="https://developers.cloudflare.com/fundamentals/reference/policies-compliances/cloudflare-cookies/" target="_blank" rel="noopener">Cloudflare cookies documentation</a>.</li>
     </ul>
 
-    <h2>2. Blog Interactions (Giscus)</h2>
-    <p>Our blog comment section is powered by <a href="https://giscus.app/" target="_blank" rel="noopener">Giscus</a>, which leverages the GitHub Discussions API. This allows us to provide an interactive space without maintaining a user database.</p>
+    <h2>2. Blog comments (Giscus)</h2>
+    <p>The comments under articles are powered by <a href="https://giscus.app/" target="_blank" rel="noopener">Giscus</a>, which uses the GitHub Discussions API. That lets me offer comments without running a user database.</p>
     <ul>
-        <li><strong>Reading articles:</strong> The Giscus script communicates with GitHub servers to load existing comments.</li>
-        <li><strong>Posting comments:</strong> Authentication is handled directly through GitHub. FlowingBot Lab does not access or store your credentials. The content of your comment is stored publicly in our GitHub repository.</li>
-        <li><strong>Cookies:</strong> Giscus and GitHub may utilize technical and session cookies required for authentication and state management. For details, refer to the <a href="https://docs.github.com/en/site-policy/privacy-policies/github-privacy-statement" target="_blank" rel="noopener">GitHub Privacy Statement</a>.</li>
+        <li><strong>Reading articles:</strong> the Giscus script talks to GitHub servers to load existing comments.</li>
+        <li><strong>Posting comments:</strong> sign-in is handled directly by GitHub. I never see or store your credentials. The text of your comment is stored publicly in the site's GitHub repository.</li>
+        <li><strong>Cookies:</strong> Giscus and GitHub may use technical and session cookies for authentication and state. For details, see the <a href="https://docs.github.com/en/site-policy/privacy-policies/github-privacy-statement" target="_blank" rel="noopener">GitHub Privacy Statement</a>.</li>
     </ul>
 
-    <h2>3. Third-Party Fonts</h2>
-    <p>To ensure proper text rendering, this website utilizes Google Fonts. When your browser requests these resources, your IP address is briefly visible to Google servers. For more information, please review the <a href="https://developers.google.com/fonts/faq/privacy" target="_blank" rel="noopener">Google Fonts Privacy FAQ</a>.</p>
+    <h2>3. Third-party fonts</h2>
+    <p>The site uses Google Fonts to render text correctly. When your browser requests them, your IP address is briefly visible to Google servers. More details in the <a href="https://developers.google.com/fonts/faq/privacy" target="_blank" rel="noopener">Google Fonts Privacy FAQ</a>.</p>
 
-    <h2>4. Contact Communications</h2>
-    <p>If you reach out via our contact email (<code>info@flowingbot.com</code>), we will process your email address and message contents solely for the purpose of responding to your inquiry.</p>
+    <h2>4. Contact</h2>
+    <p>If you write to <code>info@flowingbot.com</code>, I use your email address and the content of your message only to reply to you.</p>
 
-    <h2>5. Your Privacy Rights</h2>
-    <p>Depending on your jurisdiction (such as under the GDPR), you have rights regarding your personal data, including access, correction, and deletion. Because we do not maintain user profiles, the only identifiable information we may hold is an IP address within temporary logs or an email thread.</p>
-    <p>For any privacy-related inquiries, please contact us at <a href="mailto:info@flowingbot.com">info@flowingbot.com</a>.</p>
+    <h2>5. Links to other sites</h2>
+    <p>Some pages link to external sites, such as GitHub repositories and project docs hosted on GitHub Pages. Those sites have their own privacy policies.</p>
+
+    <h2>6. Your rights</h2>
+    <p>Depending on where you live (for example under the GDPR) you have rights over your personal data, including access, correction and deletion. Since I don't keep user profiles or my own logs, the only identifiable information I might hold is an email thread. Data processed by Cloudflare, Google or GitHub is covered by their own policies, and you can exercise your rights with them too.</p>
+    <p>For any privacy question, write to <a href="mailto:info@flowingbot.com">info@flowingbot.com</a>.</p>
 </main>
 
 <footer>
