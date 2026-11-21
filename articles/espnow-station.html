@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Two ESPs, No Router: A Wireless Weather Station with ESP-NOW - FlowingBot Blog</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="icon" type="image/png" sizes="192x192" href="../logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=7">
+<style>
+    .article-image {
+        margin: 40px 0;
+        border-radius: 8px;
+        border: 1px solid var(--line);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    }
+
+    /* Diagramma del flusso: orizzontale su desktop, verticale su mobile */
+    .flow {
+        display: flex;
+        align-items: center;
+        margin: 48px 0 12px;
+    }
+    .flow-node {
+        flex: 0 0 auto;
+        padding: 14px 16px;
+        text-align: center;
+        line-height: 1.3;
+        background: var(--paper-raised);
+        border: 1px solid var(--line-strong);
+        border-radius: 10px;
+    }
+    .flow-node strong {
+        display: block;
+        font-family: var(--font-display);
+        font-size: 0.95rem;
+        color: var(--ink);
+    }
+    .flow-node span {
+        font-family: var(--font-mono);
+        font-size: 0.7rem;
+        color: var(--ink-faint);
+    }
+    .flow-link {
+        position: relative;
+        flex: 1;
+        min-width: 56px;
+        height: 0;
+        border-top: 2px solid var(--line-strong);
+    }
+    .flow-link::after {
+        content: "";
+        position: absolute;
+        right: -1px;
+        top: -6px;
+        border: 5px solid transparent;
+        border-left: 8px solid var(--line-strong);
+        border-right: 0;
+    }
+    .flow-link span {
+        position: absolute;
+        top: -24px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-family: var(--font-mono);
+        font-size: 0.68rem;
+        white-space: nowrap;
+        color: var(--ink-faint);
+    }
+    .flow-link--espnow { border-top-color: var(--blue); }
+    .flow-link--espnow::after { border-left-color: var(--blue); }
+    .flow-link--espnow span { color: var(--blue); font-weight: 500; }
+    .flow-link--wifi { border-top-style: dashed; }
+    .flow-caption {
+        font-family: var(--font-mono);
+        font-size: 0.78rem;
+        color: var(--ink-faint);
+        text-align: center;
+    }
+
+    @media (max-width: 640px) {
+        .flow { flex-direction: column; }
+        .flow-node { width: 100%; max-width: 260px; }
+        .flow-link {
+            flex: none;
+            width: 0;
+            min-width: 0;
+            height: 52px;
+            border-top: 0;
+            border-left: 2px solid var(--line-strong);
+        }
+        .flow-link--wifi { border-left-style: dashed; }
+        .flow-link--espnow { border-left-color: var(--blue); }
+        .flow-link::after {
+            right: auto;
+            top: auto;
+            bottom: -1px;
+            left: -6px;
+            border: 5px solid transparent;
+            border-top: 8px solid var(--line-strong);
+            border-bottom: 0;
+        }
+        .flow-link--espnow::after { border-top-color: var(--blue); }
+        .flow-link span {
+            top: 50%;
+            left: 14px;
+            transform: translateY(-50%);
+        }
+    }
+</style>
+</head>
+<body>
+
+<nav id="site-nav">
+    <a href="../index.html" class="brand">
+        <svg class="brand-mark" viewBox="0 0 30 30" fill="none">
+            <rect x="1" y="1" width="28" height="28" rx="7" stroke="#1E4FE0" stroke-width="1.4"/>
+            <path d="M7 20C10 20 10 10 15 10C20 10 20 20 23 20" stroke="#1E4FE0" stroke-width="1.6" stroke-linecap="round"/>
+            <circle cx="23" cy="20" r="1.6" fill="#1E4FE0"/>
+        </svg>
+        <span class="brand-word">Flowing<span>Bot</span></span>
+    </a>
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span>
+    </button>
+    <div class="nav-links" id="navLinks">
+        <a href="../about.html">About</a>
+        <a href="../index.html#lab">Lab</a>
+        <a href="../blog.html" style="color: var(--blue);">Blog</a>
+        <a href="mailto:info@flowingbot.com" class="nav-cta">GET IN TOUCH</a>
+    </div>
+</nav>
+
+<header class="article-header">
+    <div class="article-header-container">
+        <div class="article-meta">
+            <span>November 21, 2026</span>
+            <span>•</span>
+            <span>By Andrea Prozzo</span>
+        </div>
+        <h1>Two ESPs, No Router: A Wireless Weather Station with ESP-NOW</h1>
+        <div class="stack-pills" style="margin-top: 24px;">
+            <span>ESP-NOW</span>
+            <span>ESP8266</span>
+            <span>ESP32</span>
+            <span>IoT</span>
+        </div>
+    </div>
+</header>
+
+<main class="article-body">
+    <p>This experiment started with a very small question: can two ESP boards talk to each other without a router, a broker or any cloud in the middle? It ended up as a little weather station that spans my garage and my house, with its own Wi-Fi network and a web dashboard. Here's how it came together, and what I learned testing it in the real world.</p>
+
+    <h2>Two Boards, No Router</h2>
+    <p>The setup is simple. A <strong>NodeMCU ESP8266</strong> in the garage reads temperature and humidity (with a DHT11) and detects movement (with a PIR sensor). A <strong>LilyGO T-Display (ESP32)</strong> in the house collects everything and shows it.</p>
+
+    <p>Between them there's <strong>ESP-NOW</strong>, a protocol from Espressif that lets ESP devices send small messages straight to each other over the Wi-Fi radio. No router, no MQTT broker, no internet. Fewer moving parts, which is exactly what I wanted for this test.</p>
+
+    <p>ESP-NOW doesn't use IP addresses. Devices find each other by <strong>MAC address</strong>, the unique ID burned into every Wi-Fi chip. If an IP address is like a room number that can change, the MAC is the name on the door. So the very first sketch just printed the MAC of the ESP32, which I then hardcoded in the transmitter as the destination.</p>
+
+    <p>Before touching any sensor I proved the radio link with the dumbest packet I could think of, and watched it arrive on the Serial Monitor. That lets you check three things separately: did the sender send, did the receiver receive, and does the payload look right. Adding sensors on top of a link you haven't verified is a great way to debug two problems at once.</p>
+
+    <h2>Teaching Them to Talk</h2>
+    <p>Once "hello" worked, I defined a small packet shared by both boards: is there movement, temperature, humidity, and a counter that goes up at every transmission. It's a simple C struct, and it must be identical on both sides, otherwise you read garbage. The counter looks useless at first, but it turned out to be the most useful field of the whole project, because it lets the receiver know when something got lost.</p>
+
+    <p>The ESP8266 node sends data in two ways. Every 30 seconds it sends a regular update, and it also sends a packet right away whenever the PIR changes state, so I don't have to wait to know someone walked in. If a DHT11 reading fails, the node keeps the last good value instead of sending garbage.</p>
+
+    <p>The radio setup mattered more than I expected. The ESP8266 runs in station mode on <strong>channel 1</strong> (both boards must be on the same channel, or they simply won't hear each other), uses the old and slow 802.11b mode, which generally copes better with weak signals, and transmits at its maximum power. These are the settings I tried in this project, not magic numbers, and more power doesn't automatically mean a more stable link.</p>
+
+    <h2>A Hub with Its Own Dashboard</h2>
+    <p>The T-Display doesn't read sensors. Its job is to receive packets, process them and show the result. One design choice I like: the receive callback does almost nothing. It checks the packet size, drops the data in a queue and returns, and the real work happens later in the main loop. Callbacks run inside the Wi-Fi task, so keeping them short avoids blocking the radio.</p>
+
+    <p>This is where the counter pays off. The hub counts the packets it receives, notices when there's a gap, realizes when the garage node has rebooted, and marks the link as lost if nothing arrives for about a minute.</p>
+
+    <p>The coolest part is that the ESP32 creates its own Wi-Fi network, <code>Meteo-ESP32</code>, and serves a web dashboard straight from the board. I connect a phone or a laptop, open <code>192.168.4.1</code> and that's it: no app, no router, no internet, no server running somewhere else. A single small microcontroller receives the ESP-NOW packets, runs its own access point and serves a web interface at the same time, which I find pretty cool. (There's one catch: ESP-NOW and the access point share the same radio, so the access point must be on channel 1 too.)</p>
+
+    <p>The dashboard is configurable: temperature and humidity thresholds, calibration offsets for the sensors, and how long and how fast the buzzer rings when the PIR triggers. Settings and event history are saved in flash, so they survive a reboot. The board has no clock, so the page simply sends it the phone's time to stamp the events. On top of that, the hub has its built-in display (off by default, a button wakes it for a few seconds) and a buzzer that rings on movement.</p>
+
+    <!-- TODO foto: la T-Display con i dati a schermo e/o screenshot della dashboard sul telefono
+    <img src="../assets/espnow-hub-dashboard.jpg" alt="LilyGO T-Display and the web dashboard on a phone" class="article-image">
+    -->
+
+    <p>Here's how everything fits together. The blue line is ESP-NOW between the two boards, and the dashed one is the normal Wi-Fi used to reach the hub from a phone.</p>
+
+    <div class="flow" role="img" aria-label="Diagram: DHT11 and PIR sensors feed the ESP8266 in the garage, which sends data over ESP-NOW to the ESP32 hub at home, which serves a web dashboard to a phone or PC over its own Wi-Fi access point.">
+        <div class="flow-node"><strong>DHT11 + PIR</strong><span>sensors</span></div>
+        <div class="flow-link"><span>D2 / D5</span></div>
+        <div class="flow-node"><strong>ESP8266</strong><span>garage</span></div>
+        <div class="flow-link flow-link--espnow"><span>ESP-NOW</span></div>
+        <div class="flow-node"><strong>ESP32</strong><span>home hub</span></div>
+        <div class="flow-link flow-link--wifi"><span>Wi-Fi AP</span></div>
+        <div class="flow-node"><strong>Phone / PC</strong><span>web page</span></div>
+    </div>
+    <p class="flow-caption">The hub also drives the display and the buzzer.</p>
+
+    <h2>Testing Outside the Desk</h2>
+    <p>With everything working on the desk, the real question was how the link behaves outside the ideal case. So I played with the factors that matter: distance, walls and obstacles, metal surfaces nearby, the position and tilt of the boards, and the radio settings above.</p>
+
+    <p>Inside the house the hub receives very well, even through walls. The garage is the harder case: there are three floors of concrete balconies in between, so I had to experiment with the position and the tilt of the receiving station until it had a more direct path to the garage. In open space it reaches hundreds of meters, though that's a rough estimate and I plan to test it properly.</p>
+
+    <p>The packet counter made all of this much easier. "It feels stable" became something I could check: if the hub sees 41 and then 43, packet 42 never made it. The send callback on the transmitter tells you the other radio acknowledged the packet, but that's still different from your application receiving and processing it, and the counter closes that gap.</p>
+
+    <p>Along the way there was the usual troubleshooting. The ESP32 got stuck in watchdog resets that kept it from starting properly, and small delays in the loop plus setting the CPU to 240 MHz sorted it out. It also confirmed the rule of keeping callbacks short. One thing I couldn't try is ESP-NOW's Long Range mode, because the ESP8266 doesn't support it.</p>
+
+    <h2>What's Next</h2>
+    <p>I'd like to measure the open-space range properly, add RSSI and packet-loss stats on the hub, try a higher transmit power on the ESP32 and Long Range mode (which needs an ESP32 on both sides), and add more nodes and sensors. A bridge to MQTT could also plug the station into a bigger home automation setup.</p>
+
+    <h2>Wrapping Up</h2>
+    <p>ESP-NOW turned out to be a simple and effective way to link two boards: no router, no broker, nothing to configure beyond a MAC address and a channel. Like any radio link it depends on many factors, but in open space it works great, and with a bit of tuning it's a good compromise for a small setup like this.</p>
+
+    <p>What I enjoyed the most is how much you get from so little: two cheap boards, a couple of sensors and a hub that serves its own Wi-Fi network and web interface.</p>
+
+    <!-- TODO: metti qui il link vero alla repo quando l'hai creata -->
+    <p>The firmware for both boards is on <a href="https://github.com/AndreaProzzo21/espnow-station" target="_blank" rel="noopener noreferrer" style="color: var(--blue); font-weight: 600; text-decoration: underline;">GitHub</a>, in case you want to try it or tweak it.</p>
+
+    <p><em>Have you used ESP-NOW for something? How far did it reach through walls for you? Let's discuss it in the comments below!</em></p>
+</main>
+
+<!-- GISCUS COMMENTS SECTION -->
+<div class="giscus-wrapper">
+    <h3 style="margin-bottom: 24px; font-family: var(--font-display);">Discussion & Reactions</h3>
+    
+    <script src="https://giscus.app/client.js"
+            data-repo="AndreaProzzo21/flowing-bot"
+            data-repo-id="R_kgDOTty88A"
+            data-category="General"
+            data-category-id="DIC_kwDOTty88M4DCqQ3"
+            data-mapping="title"
+            data-strict="0"
+            data-reactions-enabled="1"
+            data-emit-metadata="0"
+            data-input-position="bottom"
+            data-theme="noborder_light"
+            data-lang="en"
+            crossorigin="anonymous"
+            async>
+    </script>
+</div>
+
+<footer>
+    <div class="container footer-row">
+        <span class="footer-brand">© 2026 FLOWINGBOT LAB</span>
+        <div class="footer-right">
+            <a href="../privacy.html" class="footer-link">Privacy &amp; Cookies</a>
+            <div class="footer-social">
+                <a href="https://github.com/AndreaProzzo21" target="_blank" rel="noopener" aria-label="GitHub">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+                </a>
+                <a href="https://www.linkedin.com/in/andrea-prozzo-02884826b/" target="_blank" rel="noopener" aria-label="LinkedIn">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+                </a>
+                <a href="mailto:info@flowingbot.com" aria-label="Email">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                </a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script src="../app.js"></script>
+</body>
+</html>
