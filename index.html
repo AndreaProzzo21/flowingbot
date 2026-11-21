@@ -39,12 +39,28 @@
         <h1>Welcome to <span>FlowingBot</span>.</h1>
         <p class="lede">A lab where automation, AI, physical devices and the cloud work together. Here I build projects, test new tools and write down what I learn along the way.</p>
         
-        <div class="hero-actions">
-            <a href="#solutions" class="btn btn-primary">View capabilities</a>
-            <a href="/blog.html" class="btn btn-ghost">Check out the blog →</a>
-        </div>
     </div>
 </header>
+
+<!-- Incolla questa section tra </header> (hero) e <section id="solutions"> -->
+<section class="latest" id="latest" aria-labelledby="latest-title" hidden>
+    <div class="container">
+        <div class="latest-head">
+            <div>
+                <span class="eyebrow">Lab Notes</span>
+                <h2 id="latest-title">Latest from the blog.</h2>
+            </div>
+            <div class="latest-nav">
+                <a href="/blog.html" class="latest-all">All posts →</a>
+                <!-- <button type="button" class="latest-btn" id="latestPrev" aria-label="Previous posts">←</button>
+                <button type="button" class="latest-btn" id="latestNext" aria-label="Next posts">→</button> -->
+            </div>
+        </div>
+        <div class="carousel is-start" id="latestCarousel">
+            <div class="post-track" id="latestTrack" tabindex="0" role="region" aria-label="Latest blog posts"></div>
+        </div>
+    </div>
+</section>
 
 <section id="solutions">
     <div class="container">
@@ -157,6 +173,7 @@
     </div>
 </footer>
 
+<script src="latest-posts.js" defer></script>
 <script src="app.js"></script>
 </body>
 </html>
