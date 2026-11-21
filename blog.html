@@ -35,7 +35,7 @@
     <div class="container hero-container">
         <span class="eyebrow">Lab Notes</span>
         <h1>Engineering <span>insights</span>.</h1>
-        <p class="lede">An open notebook of my edge-to-cloud experiments, deployments and the decisions behind them. I write down what I learn in the lab, what works and what doesn't. Read the articles, drop a reaction and tell me what you think in the comments.</p>
+        <p class="lede">An open notebook of my infrastructure experiments, deployments and the decisions behind them. I write down what I learn in the lab, what works and what doesn't. Read the articles, drop a reaction and tell me what you think in the comments.</p>
     </div>
 </header>
 
@@ -43,29 +43,45 @@
     <div class="container">
         <div class="lab-grid">
 
-        <!-- Article Card 4: k3s GitOps (Newest) -->
-        <div class="lab-card">
-            <div class="lab-card-main">
-                <h3><span class="status-dot is-online"></span>k3s on AWS, All from Git<span class="status-tag is-online">NEW</span></h3>
-                <p>A small k3s cluster on AWS managed entirely with Terraform, Flux, SOPS and Cloudflare Tunnels: no manual kubectl, no open web ports.</p>
-                <div class="stack-tags">
-                    <span>November 19, 2026</span>
-                    <span>k3s</span>
-                    <span>FluxCD</span>
-                    <span>Terraform</span>
-                    <span>Zero Trust</span>
+            <!-- Article Card 5: ESP-NOW weather station (Newest) -->
+            <div class="lab-card">
+                <div class="lab-card-main">
+                    <h3><span class="status-dot is-online"></span>Two ESPs, No Router<span class="status-tag is-online">NEW</span></h3>
+                    <p>A wireless weather station built with ESP-NOW: a remote ESP8266 node and an ESP32 hub at home with its own Wi-Fi network and web dashboard.</p>
+                    <div class="stack-tags">
+                        <span>5 min read</span>
+                        <span>ESP-NOW</span>
+                        <span>ESP32</span>
+                        <span>ESP8266</span>
+                        <span>IoT</span>
+                    </div>
                 </div>
+                <a href="/articles/espnow-station.html" class="lab-card-link">Read article →</a>
             </div>
-            <a href="/articles/k3s-flux-gitops.html" class="lab-card-link">Read article →</a>
-        </div>
 
-            <!-- Article Card 3: Gateway (Newest) -->
+            <!-- Article Card 4: k3s GitOps -->
+            <div class="lab-card">
+                <div class="lab-card-main">
+                    <h3><span class="status-dot is-online"></span>k3s on AWS, All from Git</h3>
+                    <p>A small k3s cluster on AWS managed entirely with Terraform, Flux, SOPS and Cloudflare Tunnels: no manual kubectl, no open web ports.</p>
+                    <div class="stack-tags">
+                        <span>5 min read</span>
+                        <span>k3s</span>
+                        <span>FluxCD</span>
+                        <span>Terraform</span>
+                        <span>Zero Trust</span>
+                    </div>
+                </div>
+                <a href="/articles/k3s-flux-gitops.html" class="lab-card-link">Read article →</a>
+            </div>
+
+            <!-- Article Card 3: Gateway -->
             <div class="lab-card">
                 <div class="lab-card-main">
                     <h3><span class="status-dot is-online"></span>Zero-Knowledge K8s Gateway</h3>
                     <p>A self-hosted, secure web platform to manage multi-cluster Kubernetes deployments without ever distributing kubeconfig files.</p>
                     <div class="stack-tags">
-                        <span>August 10, 2026</span>
+                        <span>3 min read</span>
                         <span>Kubernetes</span>
                         <span>RBAC</span>
                         <span>Control Plane</span>
@@ -74,14 +90,14 @@
                 </div>
                 <a href="/articles/k8s-cloud-gateway.html" class="lab-card-link">Read article →</a>
             </div>
-            
-            <!-- Article Card 1 -->
+
+            <!-- Article Card 1: Talos -->
             <div class="lab-card">
                 <div class="lab-card-main">
                     <h3><span class="status-dot is-online"></span>Talos Linux at the Edge</h3>
                     <p>Bootstrapping a fast, secure, and reproducible single-node Kubernetes cluster for edge testing using Talos Linux on a resource-constrained VM.</p>
                     <div class="stack-tags">
-                        <span>August 4, 2026</span>
+                        <span>3 min read</span>
                         <span>Talos</span>
                         <span>Kubernetes</span>
                         <span>Edge</span>
@@ -96,7 +112,7 @@
                     <h3><span class="status-dot is-online"></span>Lightweight K8s Logging</h3>
                     <p>Centralizing Kubernetes logs on resource-constrained edge nodes using a highly efficient Vector and Victoria Logs stack via FluxCD.</p>
                     <div class="stack-tags">
-                        <span>August 4, 2026</span>
+                        <span>3 min read</span>
                         <span>Logging</span>
                         <span>Vector</span>
                         <span>VictoriaLogs</span>
