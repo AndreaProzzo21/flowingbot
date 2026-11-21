@@ -284,6 +284,33 @@ nav.is-scrolled {
     justify-content: center;
     margin: 0 auto !important;
 }
+/* --- Hero più alto + segnale che invita a scendere --- */
+.hero:not(.about-hero) {
+    min-height: 92svh;
+    padding: clamp(150px, 21vh, 230px) 0 clamp(90px, 14vh, 150px);
+}
+
+/* linea sottile con una scia di luce che scende */
+.hero-container::after {
+    content: "";
+    display: block;
+    width: 2px;
+    height: 96px;
+    margin: -8px auto 0;
+    border-radius: 2px;
+    background:
+        linear-gradient(to bottom, rgba(30, 79, 224, 0), var(--blue)) 0 -44px / 100% 44px no-repeat,
+        linear-gradient(var(--line-strong), var(--line-strong)) 50% 0 / 1px 100% no-repeat;
+    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 20%, #000 70%, transparent);
+    mask-image: linear-gradient(to bottom, transparent, #000 20%, #000 70%, transparent);
+    animation: hero-cue 3.2s cubic-bezier(0.55, 0.05, 0.3, 1) infinite;
+}
+
+@keyframes hero-cue {
+    0%   { background-position: 0 -44px, 50% 0; }
+    75%  { background-position: 0 96px, 50% 0; }
+    100% { background-position: 0 96px, 50% 0; }
+}
 
 /* ==========================================================================
    About Page Hero (Allineato a sinistra)
@@ -731,4 +758,158 @@ footer {
     padding: 0 32px;
     border-top: 1px solid var(--line);
     padding-top: 60px;
+}
+
+/* ==========================================================================
+   Latest posts carousel (da aggiungere in fondo a style.css)
+   ========================================================================== */
+.latest {
+    padding: 56px 0 60px;
+    background: var(--paper-alt);
+    border-bottom: 1px solid var(--line);
+}
+
+.latest-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+    margin-bottom: 28px;
+}
+
+.latest-head .eyebrow { margin-bottom: 10px; }
+
+.latest-head h2 {
+    font-size: clamp(1.4rem, 2.4vw, 1.8rem);
+}
+
+.latest-nav {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.latest-all {
+    text-decoration: none;
+    font-size: 0.86rem;
+    font-weight: 600;
+    color: var(--blue);
+    margin-right: 10px;
+    transition: color 0.2s;
+}
+
+.latest-all:hover { color: var(--blue-deep); }
+
+.latest-btn {
+    width: 40px;
+    height: 40px;
+    display: grid;
+    place-items: center;
+    font-size: 1rem;
+    line-height: 1;
+    color: var(--ink);
+    background: var(--paper-raised);
+    border: 1px solid var(--line-strong);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s, opacity 0.2s;
+}
+
+.latest-btn:hover:not(:disabled) { border-color: var(--blue); color: var(--blue); }
+.latest-btn:disabled { opacity: 0.35; cursor: default; }
+.latest.no-scroll .latest-btn { display: none; }
+
+/* --- Track: swipe nativo con scroll-snap --- */
+.post-track {
+    display: flex;
+    gap: 16px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    padding: 2px 2px 6px;
+    scroll-padding-left: 2px;
+}
+
+.post-track::-webkit-scrollbar { display: none; }
+
+/* sfumatura a destra finché ci sono altri post */
+.carousel:not(.is-end) .post-track {
+    -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 56px), transparent);
+    mask-image: linear-gradient(90deg, #000 calc(100% - 56px), transparent);
+}
+
+.post-card {
+    flex: 0 0 min(340px, 82%);
+    scroll-snap-align: start;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 22px 24px;
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    text-decoration: none;
+    transition: border-color 0.2s;
+}
+
+.post-card:hover { border-color: var(--blue); }
+
+.post-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.04em;
+    color: var(--ink-faint);
+}
+
+.post-badge {
+    color: var(--green);
+    background: var(--green-tint);
+    padding: 2px 8px;
+    border-radius: 5px;
+    letter-spacing: 0.08em;
+}
+
+.post-card h3 {
+    font-size: 1.08rem;
+    line-height: 1.3;
+}
+
+.post-card p {
+    color: var(--ink-soft);
+    font-size: 0.9rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.post-foot {
+    margin-top: auto;
+    padding-top: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.post-card .stack-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.post-read {
+    font-size: 0.84rem;
+    font-weight: 600;
+    color: var(--blue);
+    white-space: nowrap;
+    transition: letter-spacing 0.2s;
+}
+
+.post-card:hover .post-read { letter-spacing: 0.02em; }
+
+@media (max-width: 720px) {
+    .latest { padding: 44px 0 48px; }
+    .latest-btn { display: none; } /* su mobile si scorre con il dito */
 }
